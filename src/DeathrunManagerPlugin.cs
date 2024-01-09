@@ -145,10 +145,15 @@ public class DeathrunManagerPlugin : BasePlugin
         int playersCTCount = playersCT.Count - 1;
         int sortedPlayerIndex = rand.Next(playersCTCount);
         CCSPlayerController selectedPlayerToTerrorist = playersCT[sortedPlayerIndex];
-        CCSPlayerController selectPlayerOnTerrorist = playersTR.First();
+
+        if (playerTR.Count > 0)
+        {
+            CCSPlayerController selectPlayerOnTerrorist = playersTR.First();
+            selectPlayerOnTerrorist.ChangeTeam(CsTeam.CounterTerrorist);
+        }
+        
         players.ForEach(p => p.ChangeTeam(CsTeam.CounterTerrorist));
         Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}New Random Terrorist Selected: {selectedPlayerToTerrorist.PlayerName}");
-        selectPlayerOnTerrorist.ChangeTeam(CsTeam.CounterTerrorist);
         selectedPlayerToTerrorist!.ChangeTeam(CsTeam.Terrorist);
         return HookResult.Continue;
     }
