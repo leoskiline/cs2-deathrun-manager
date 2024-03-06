@@ -118,14 +118,18 @@ public class DeathrunManagerPlugin : BasePlugin
     [GameEventHandler]
     public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo info)
     {
-        Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}{@event.Userid.PlayerName} connected!");
+        if(@event.Userid!.IsValid){
+            Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}{@event.Userid.PlayerName} connected!");
+        }
         return HookResult.Continue;
     }
 
     [GameEventHandler]
     public HookResult OnPlayerConnect(EventPlayerDisconnect @event, GameEventInfo info)
     {
-        Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}{@event.Userid.PlayerName} disconnected!");
+        if(@event.Userid!.IsValid){
+            Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}{@event.Userid.PlayerName} disconnected!");
+        }
         return HookResult.Continue;
     }
 
@@ -146,7 +150,7 @@ public class DeathrunManagerPlugin : BasePlugin
         int sortedPlayerIndex = rand.Next(playersCTCount);
         CCSPlayerController selectedPlayerToTerrorist = playersCT[sortedPlayerIndex];
 
-        if (playerTR.Count > 0)
+        if (playersTR.Count > 0)
         {
             CCSPlayerController selectPlayerOnTerrorist = playersTR.First();
             selectPlayerOnTerrorist.ChangeTeam(CsTeam.CounterTerrorist);
