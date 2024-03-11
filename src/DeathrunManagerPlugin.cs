@@ -1,4 +1,4 @@
-﻿
+
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -138,14 +138,16 @@ public class DeathrunManagerPlugin : BasePlugin
 
     private HookResult selectRandomTerrorist()
     {
-        if (b_Enabled && Utilities.GetPlayers().Count <= 1)
+        if(!b_Enabled) { return HookResult.Continue; };
+        List<CCSPlayerController> players, playersCT, playersTR;
+        getPlayers(out players, out playersCT, out playersTR);
+
+        if (b_Enabled && players.Count <= 1)
         {
             Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}Minimum 2 players required to start DR.");
             return HookResult.Continue;
         }
-
-        List<CCSPlayerController> players, playersCT, playersTR;
-        getPlayers(out players, out playersCT, out playersTR);
+        
 
         var rand = new Random();
         int playersCTCount = playersCT.Count - 1;
@@ -166,7 +168,7 @@ public class DeathrunManagerPlugin : BasePlugin
 
     private static void getPlayers(out List<CCSPlayerController> players, out List<CCSPlayerController> playersCT, out List<CCSPlayerController> playersTR)
     {
-        players = Utilities.GetPlayers().Where(s => s.IsValid).ToList();
+        players = Utilities.GetPlayers().Where(s => s.IsValid).Where(s => s.PlayerPawn.Value != null).ToList();
         playersCT = players.Where(s => s.TeamNum == CT).ToList();
         playersTR = players.Where(s => s.TeamNum == TR).ToList();
     }
