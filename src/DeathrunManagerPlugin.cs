@@ -10,7 +10,7 @@ public class DeathrunManagerPlugin : BasePlugin
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.3";
+    public override string ModuleVersion => "0.0.4";
     
     public override string ModuleAuthor => "Psycho";
 
@@ -117,6 +117,11 @@ public class DeathrunManagerPlugin : BasePlugin
         return selectRandomTerrorist();
     }
 
+    public HookResult OnWarmupEnd(EventWarmupEnd @event,GameEventInfo info)
+    {
+        return selectRandomTerrorist();
+    }
+
     [GameEventHandler]
     public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo info)
     {
@@ -135,12 +140,45 @@ public class DeathrunManagerPlugin : BasePlugin
         return HookResult.Continue;
     }
 
+    private void RemoveWeaponsOnTheGround()
+    {
+        var entities = Utilities.FindAllEntitiesByDesignerName<CCSWeaponBaseGun>("weapon_");
+
+        foreach (var entity in entities)
+        {
+            if (!entity.IsValid)
+            {
+                continue;
+            }
+
+            if (entity.State != CSWeaponState_t.WEAPON_NOT_CARRIED)
+            {
+                continue;
+            }
+
+            if (entity.DesignerName.StartsWith("weapon_") == false)
+            {
+                continue;
+            }
+
+            entity.Remove();
+        }
+    }
 
     private HookResult selectRandomTerrorist()
     {
         if(!b_Enabled) { return HookResult.Continue; };
+
+        RemoveWeaponsOnTheGround();
+
         List<CCSPlayerController> players, playersCT, playersTR;
         getPlayers(out players, out playersCT, out playersTR);
+
+        players.ForEach(p => {
+            p.RemoveWeapons();
+            p.GiveNamedItem(CounterStrikeSharp.API.Modules.Entities.Constants.CsItem.Knife);
+        });
+
 
         if (b_Enabled && players.Count <= 1)
         {
