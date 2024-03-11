@@ -18,3 +18,10 @@ Deathrun Manager for CounterStrikeSharp Framework CS2.
 * Requeriments
   <br>CounterstrikeSharp Framework.
   <br>Metamod:Source.
+
+* Changelog:
+    V0.0.1 - First Version Deathrun Manager for CS2 on CounterStrikeSharp Framework.
+    V0.0.2 - Hotfix from first version of Deathrun Manager for CS2 on CounterStrikeSharp Framework.
+    V0.0.3 - Fix to not consider disconnected players
+    V0.0.4 - Remove Weapons on round end.
+           - Remove Weapons from ground on round end.
