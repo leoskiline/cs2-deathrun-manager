@@ -10,7 +10,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.4";
+    public override string ModuleVersion => "0.0.5";
     
     public override string ModuleAuthor => "Psycho";
 

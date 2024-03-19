@@ -8,17 +8,17 @@
     ".NETCoreApp,Version=v7.0": {
       "DeathrunManager/1.0.0": {
         "dependencies": {
-          "CounterStrikeSharp.API": "1.0.98.0"
+          "CounterStrikeSharp.API": "1.0.189.0"
         },
         "runtime": {
           "DeathrunManager.dll": {}
         }
       },
-      "CounterStrikeSharp.API/1.0.98.0": {
+      "CounterStrikeSharp.API/1.0.189.0": {
         "runtime": {
           "CounterStrikeSharp.API.dll": {
-            "assemblyVersion": "1.0.98.0",
-            "fileVersion": "1.0.98.0"
+            "assemblyVersion": "1.0.189.0",
+            "fileVersion": "1.0.189.0"
           }
         }
       },
@@ -62,11 +62,27 @@
           }
         }
       },
+      "Microsoft.Extensions.Localization.Abstractions/7.0.0.0": {
+        "runtime": {
+          "Microsoft.Extensions.Localization.Abstractions.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.323.8009"
+          }
+        }
+      },
       "McMaster.NETCore.Plugins/1.4.0.0": {
         "runtime": {
           "McMaster.NETCore.Plugins.dll": {
             "assemblyVersion": "1.4.0.0",
             "fileVersion": "1.4.0.0"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection/7.0.0.0": {
+        "runtime": {
+          "Microsoft.Extensions.DependencyInjection.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
           }
         }
       },
@@ -81,14 +97,6 @@
       "Microsoft.Extensions.Hosting/7.0.0.0": {
         "runtime": {
           "Microsoft.Extensions.Hosting.dll": {
-            "assemblyVersion": "7.0.0.0",
-            "fileVersion": "7.0.22.51805"
-          }
-        }
-      },
-      "Microsoft.Extensions.DependencyInjection/7.0.0.0": {
-        "runtime": {
-          "Microsoft.Extensions.DependencyInjection.dll": {
             "assemblyVersion": "7.0.0.0",
             "fileVersion": "7.0.22.51805"
           }
@@ -302,7 +310,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "CounterStrikeSharp.API/1.0.98.0": {
+    "CounterStrikeSharp.API/1.0.189.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
@@ -332,7 +340,17 @@
       "serviceable": false,
       "sha512": ""
     },
+    "Microsoft.Extensions.Localization.Abstractions/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
     "McMaster.NETCore.Plugins/1.4.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Extensions.DependencyInjection/7.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
@@ -343,11 +361,6 @@
       "sha512": ""
     },
     "Microsoft.Extensions.Hosting/7.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Microsoft.Extensions.DependencyInjection/7.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
