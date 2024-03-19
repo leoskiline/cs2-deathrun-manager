@@ -1,0 +1,10 @@
+﻿################################################################################
+# Este arquivo .gitignore foi criado automaticamente pelo Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/cs2-deathrun-manager/v17
+/src/.vs/DeathrunManager/FileContentIndex
+/src/obj
+/src/bin
+/src/.vs
+/.vs
