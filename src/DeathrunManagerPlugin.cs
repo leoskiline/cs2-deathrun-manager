@@ -6,7 +6,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace DeathrunManagerPlugin;
-public class DeathrunManagerPlugin : BasePlugin
+public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
@@ -36,6 +36,37 @@ public class DeathrunManagerPlugin : BasePlugin
         AddCommandListener("jointeam", CommandListener_JoinTeam);
     }
 
+    public required PluginConfig Config { get; set; }
+
+    public void OnConfigParsed(PluginConfig config)
+    {
+        string errorMessage = "";
+        
+
+
+        if(!(config.DrPrefix is string))
+        {
+            errorMessage.Concat("DeathrunPrefix on config must be string,");
+        }
+
+        if(config.DrEnabled != 1 || config.DrEnabled != 0)
+        {
+            errorMessage.Concat("DeathrunEnabled must be 0 or 1,");
+        }
+        
+
+        if(errorMessage != "")
+        {
+            errorMessage.TrimEnd(',');
+            throw new Exception(errorMessage);
+        }
+
+        prefix = config.DrPrefix;
+        b_Enabled = config.DrEnabled == 1;
+
+        Config = config;
+    }
+
     private HookResult CommandListener_JoinTeam(CCSPlayerController? player, CommandInfo info)
     {
         if(b_Enabled != true)
@@ -43,7 +74,7 @@ public class DeathrunManagerPlugin : BasePlugin
             return HookResult.Continue;
         }
 
-        if (!player.IsValid)
+        if (!player!.IsValid)
         {
             return HookResult.Continue;
         }

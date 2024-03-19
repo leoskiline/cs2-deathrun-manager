@@ -1,0 +1,1 @@
+Copy files to csgo/addons/counterstrikesharp folder
