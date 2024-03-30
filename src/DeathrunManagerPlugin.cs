@@ -10,13 +10,14 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.5";
+    public override string ModuleVersion => "0.0.6";
     
     public override string ModuleAuthor => "Psycho";
 
     public override string ModuleDescription => "Deathrun Manager plugin";
 
     private bool b_Enabled = true;
+    private bool b_DeathrunAllowCTGoSpec = true;
     private string prefix = "[DR Manager]";
     private string[] BlockedCommands = new string[] { "kill" ,"killvector","explodevector","explode"};
 
@@ -51,11 +52,16 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if(config.DrEnabled != 1 || config.DrEnabled != 0)
         {
-            errorMessage.Concat("DeathrunEnabled must be 0 or 1,");
+            errorMessage.Concat("DeathrunEnabled on config must be 0 or 1,");
         }
-        
 
-        if(errorMessage != "")
+        if (config.DrAllowCTGoSpec != 1 || config.DrAllowCTGoSpec != 0)
+        {
+            errorMessage.Concat("DeathrunAllowCTGoSpec on config must be 0 or 1,");
+        }
+
+
+        if (errorMessage != "")
         {
             errorMessage.TrimEnd(',');
             throw new Exception(errorMessage);
@@ -63,6 +69,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         prefix = config.DrPrefix;
         b_Enabled = config.DrEnabled == 1;
+        b_DeathrunAllowCTGoSpec = config.DrAllowCTGoSpec == 1;
 
         Config = config;
     }
@@ -91,6 +98,12 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
 
         int arg = Convert.ToInt32(info.GetArg(1));
+
+        if(b_DeathrunAllowCTGoSpec && player.PlayerPawn.Value!.TeamNum == CT && arg == SPEC)
+        {
+            return HookResult.Continue;
+        }
+
 
         List<CCSPlayerController> players, playersCT, playersTR;
         getPlayers(out players, out playersCT, out playersTR);
@@ -140,6 +153,13 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     public void onDrPrefix(CCSPlayerController? player, CommandInfo command)
     {
         prefix = command.ArgString;
+    }
+
+    [ConsoleCommand("dr_allow_ct_spec", "Allow CT change team to Spectator")]
+    [CommandHelper(minArgs: 1, usage: "[1/0]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    public void onAllowCTSpec(CCSPlayerController? player, CommandInfo command)
+    {
+        b_DeathrunAllowCTGoSpec = Convert.ToBoolean(command.ArgString);
     }
 
     [GameEventHandler]

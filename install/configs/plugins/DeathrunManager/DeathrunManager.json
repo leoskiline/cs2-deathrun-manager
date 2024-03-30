@@ -1,4 +1,5 @@
 {
     "DeathrunEnabled": 1,
-    "DeathrunPrefix": "[DR Manager]"
+    "DeathrunPrefix": "[DR Manager]",
+    "DeathrunAllowCTGoSpec": 1
 }

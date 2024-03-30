@@ -11,6 +11,7 @@ Deathrun Manager for CounterStrikeSharp Framework CS2.
 * Commands:
   <br>dr_enabled 1/0 - Enable or Disable Deathrun Manager.
   <br>dr_prefix "DR Manager" - Change Deathrun Manager Prefix Messages.
+  <br>dr_allow_ct_spec 1/0 - Allow CT change to team spec
 
 * Installation
   <br>Copy DeathrunManager Folder to addons/counterstrikesharp/plugins.
@@ -24,4 +25,5 @@ Deathrun Manager for CounterStrikeSharp Framework CS2.
     V0.0.2 - Hotfix from first version of Deathrun Manager for CS2 on CounterStrikeSharp Framework.<br>
     V0.0.3 - Fix to not consider disconnected players<br>
     V0.0.4 - Remove Weapons on round end. Remove Weapons from ground on round end.<br>
-    V0.0.5 - Added config file.
+    V0.0.5 - Added config file.<br>
+    V0.0.6 - Added possibility CT change team to SPEC when enabled in config file. Enabled by default.
