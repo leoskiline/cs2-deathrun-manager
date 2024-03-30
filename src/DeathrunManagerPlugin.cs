@@ -10,7 +10,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.6";
+    public override string ModuleVersion => "0.0.7";
     
     public override string ModuleAuthor => "Psycho";
 
@@ -18,8 +18,10 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
     private bool b_Enabled = true;
     private bool b_DeathrunAllowCTGoSpec = true;
+    private float deathrunVelocityMultiplierTR = (float)1.75;
     private string prefix = "[DR Manager]";
     private string[] BlockedCommands = new string[] { "kill" ,"killvector","explodevector","explode"};
+    private CCSPlayerController? selectedPlayerToTerrorist;
 
     private const int CT = 3;
     private const int TR = 2;
@@ -60,6 +62,11 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
             errorMessage.Concat("DeathrunAllowCTGoSpec on config must be 0 or 1,");
         }
 
+        if(config.DrVelocityMultiplierTR <= 0)
+        {
+            errorMessage.Concat("DeathrunVelocityMultiplierTR on config file must be > 0");
+        }
+
 
         if (errorMessage != "")
         {
@@ -70,6 +77,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         prefix = config.DrPrefix;
         b_Enabled = config.DrEnabled == 1;
         b_DeathrunAllowCTGoSpec = config.DrAllowCTGoSpec == 1;
+        deathrunVelocityMultiplierTR = config.DrVelocityMultiplierTR;
 
         Config = config;
     }
@@ -155,6 +163,15 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         prefix = command.ArgString;
     }
 
+    [ConsoleCommand("dr_velocity_multiplier_tr", "Change velocity multiplier from terrorist team")]
+    [CommandHelper(minArgs: 1, usage: "float", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    public void onVelocityMultiplierTR(CCSPlayerController? player, CommandInfo command)
+    {
+        float velocity;
+        float.TryParse(command.ArgString, out velocity);
+        deathrunVelocityMultiplierTR = velocity;
+    }
+
     [ConsoleCommand("dr_allow_ct_spec", "Allow CT change team to Spectator")]
     [CommandHelper(minArgs: 1, usage: "[1/0]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void onAllowCTSpec(CCSPlayerController? player, CommandInfo command)
@@ -166,6 +183,16 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     public HookResult OnRoundEnd(EventRoundEnd @event,GameEventInfo info)
     {
         return selectRandomTerrorist();
+    }
+
+    [GameEventHandler]
+    public HookResult OnRoundStart(EventRoundStart @event,GameEventInfo info)
+    {
+        if (b_Enabled && this.selectedPlayerToTerrorist != null)
+        {
+            this.selectedPlayerToTerrorist!.PlayerPawn!.Value!.VelocityModifier = (float)Config.DrVelocityMultiplierTR;
+        }
+        return HookResult.Continue;
     }
 
     public HookResult OnWarmupEnd(EventWarmupEnd @event,GameEventInfo info)
@@ -220,23 +247,14 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         if(!b_Enabled) { return HookResult.Continue; };
 
-        RemoveWeaponsOnTheGround();
-
         List<CCSPlayerController> players, playersCT, playersTR;
         getPlayers(out players, out playersCT, out playersTR);
-
-        players.ForEach(p => {
-            p.RemoveWeapons();
-            p.GiveNamedItem(CounterStrikeSharp.API.Modules.Entities.Constants.CsItem.Knife);
-        });
-
 
         if (b_Enabled && players.Count <= 1)
         {
             Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}Minimum 2 players required to start DR.");
             return HookResult.Continue;
         }
-        
 
         var rand = new Random();
         int playersCTCount = playersCT.Count - 1;
@@ -246,12 +264,23 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         if (playersTR.Count > 0)
         {
             CCSPlayerController selectPlayerOnTerrorist = playersTR.First();
-            selectPlayerOnTerrorist.ChangeTeam(CsTeam.CounterTerrorist);
+            selectPlayerOnTerrorist.SwitchTeam(CsTeam.CounterTerrorist);
+            selectPlayerOnTerrorist.RemoveWeapons();
+            selectedPlayerToTerrorist.GiveNamedItem(CounterStrikeSharp.API.Modules.Entities.Constants.CsItem.Knife);
         }
-        
-        players.ForEach(p => p.ChangeTeam(CsTeam.CounterTerrorist));
+
+        RemoveWeaponsOnTheGround();
+
+        players.ForEach(p =>
+        {
+            p.SwitchTeam(CsTeam.CounterTerrorist);
+            p.RemoveWeapons();
+            p.GiveNamedItem(CounterStrikeSharp.API.Modules.Entities.Constants.CsItem.Knife);
+            p!.PlayerPawn!.Value!.VelocityModifier = 1;
+        });
         Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}New Random Terrorist Selected: {selectedPlayerToTerrorist.PlayerName}");
         selectedPlayerToTerrorist!.ChangeTeam(CsTeam.Terrorist);
+        this.selectedPlayerToTerrorist = selectedPlayerToTerrorist;
         return HookResult.Continue;
     }
 
