@@ -29,3 +29,4 @@ Deathrun Manager for CounterStrikeSharp Framework CS2.
     V0.0.5 - Added config file.<br>
     V0.0.6 - Added possibility CT change team to SPEC when enabled in config file. Enabled by default.<br>
     V0.0.7 - Added TR velocity multiplier.<br>
+    V0.0.8 - Hotfix to not change SPEC back to Counter-Terrorist.<br>

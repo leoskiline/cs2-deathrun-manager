@@ -10,7 +10,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.7";
+    public override string ModuleVersion => "0.0.8";
     
     public override string ModuleAuthor => "Psycho";
 
@@ -286,7 +286,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
     private static void getPlayers(out List<CCSPlayerController> players, out List<CCSPlayerController> playersCT, out List<CCSPlayerController> playersTR)
     {
-        players = Utilities.GetPlayers().Where(s => s.IsValid).Where(s => s.PlayerPawn.Value != null).ToList();
+        players = Utilities.GetPlayers().Where(s => s.IsValid).Where(s => !s.IsHLTV).Where(s => s.PlayerPawn.Value != null).Where(s => s.TeamNum != SPEC).ToList();
         playersCT = players.Where(s => s.TeamNum == CT).ToList();
         playersTR = players.Where(s => s.TeamNum == TR).ToList();
     }
