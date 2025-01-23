@@ -1,5 +1,7 @@
 Deathrun Manager for CounterStrikeSharp Framework CS2.
 
+Video: https://youtu.be/W03D675dkGg
+
 * Features:
   <br>Every Round End Select one random terrorist.
   <br>Block Kill Commands (kill,killvector,explodevector,explode).
