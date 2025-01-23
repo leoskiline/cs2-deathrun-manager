@@ -2,7 +2,6 @@ Deathrun Manager for CounterStrikeSharp Framework CS2.
 
 * Features:
   <br>Every Round End Select one random terrorist.
-  <br>Connect/Disconnect Messages.
   <br>Block Kill Commands (kill,killvector,explodevector,explode).
   <br>Block new players join to terrorist team.
   <br>Block terrorist selected go to counter-terrorist or spectator.
@@ -30,4 +29,4 @@ Deathrun Manager for CounterStrikeSharp Framework CS2.
     V0.0.6 - Added possibility CT change team to SPEC when enabled in config file. Enabled by default.<br>
     V0.0.7 - Added TR velocity multiplier.<br>
     V0.0.8 - Hotfix to not change SPEC back to Counter-Terrorist.<br>
-    V0.0.9 - Hotfix for new cs2 update 2025-01-22
+    V0.0.9 - Hotfix for new cs2 update 2025-01-22.<br>
