@@ -10,7 +10,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.8";
+    public override string ModuleVersion => "0.0.9";
     
     public override string ModuleAuthor => "Psycho";
 
@@ -22,6 +22,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     private string prefix = "[DR Manager]";
     private string[] BlockedCommands = new string[] { "kill" ,"killvector","explodevector","explode"};
     private CCSPlayerController? selectedPlayerToTerrorist;
+    private bool loadedConvar = false;
 
     private const int CT = 3;
     private const int TR = 2;
@@ -29,17 +30,34 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
     public override void Load(bool hotReload)
     {
+
+        RegisterListener<Listeners.OnServerPreWorldUpdate>(simulating =>
+        {
+            OnServerPreWorldUpdate();
+        });
+
         for (int i = 0; i < BlockedCommands.Length; i++)
         {
             AddCommandListener(BlockedCommands[i], CommandListener_BlockCommands);
         }
-        Server.ExecuteCommand("mp_t_default_secondary 0");
-        Server.ExecuteCommand("mp_ct_default_secondary 0");
 
         AddCommandListener("jointeam", CommandListener_JoinTeam);
     }
 
     public required PluginConfig Config { get; set; }
+
+    private void OnServerPreWorldUpdate()
+    {
+        if (!this.loadedConvar)
+        {
+            Console.WriteLine("[DR Manager] Convar config.");
+            Server.ExecuteCommand("mp_t_default_secondary 0");
+            Server.ExecuteCommand("mp_ct_default_secondary 0");
+            Server.ExecuteCommand("mp_autoteambalance 0");
+            Server.ExecuteCommand("mp_limitteams 0");
+            this.loadedConvar = true;
+        }
+    }
 
     public void OnConfigParsed(PluginConfig config)
     {
@@ -195,27 +213,16 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         return HookResult.Continue;
     }
 
+    [GameEventHandler]
     public HookResult OnWarmupEnd(EventWarmupEnd @event,GameEventInfo info)
     {
         return selectRandomTerrorist();
     }
 
     [GameEventHandler]
-    public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo info)
+    public HookResult OnRoundAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info)
     {
-        if(@event.Userid!.IsValid){
-            Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}{@event.Userid.PlayerName} connected!");
-        }
-        return HookResult.Continue;
-    }
-
-    [GameEventHandler]
-    public HookResult OnPlayerConnect(EventPlayerDisconnect @event, GameEventInfo info)
-    {
-        if(@event.Userid!.IsValid){
-            Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}{@event.Userid.PlayerName} disconnected!");
-        }
-        return HookResult.Continue;
+        return selectRandomTerrorist();
     }
 
     private void RemoveWeaponsOnTheGround()
@@ -259,34 +266,29 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         var rand = new Random();
         int playersCTCount = playersCT.Count - 1;
         int sortedPlayerIndex = rand.Next(playersCTCount);
-        CCSPlayerController selectedPlayerToTerrorist = playersCT[sortedPlayerIndex];
-
-        if (playersTR.Count > 0)
-        {
-            CCSPlayerController selectPlayerOnTerrorist = playersTR.First();
-            selectPlayerOnTerrorist.SwitchTeam(CsTeam.CounterTerrorist);
-            selectPlayerOnTerrorist.RemoveWeapons();
-            selectedPlayerToTerrorist.GiveNamedItem(CounterStrikeSharp.API.Modules.Entities.Constants.CsItem.Knife);
-        }
+        
 
         RemoveWeaponsOnTheGround();
 
         players.ForEach(p =>
         {
             p.SwitchTeam(CsTeam.CounterTerrorist);
+            p!.PlayerPawn!.Value!.VelocityModifier = 1;
             p.RemoveWeapons();
             p.GiveNamedItem(CounterStrikeSharp.API.Modules.Entities.Constants.CsItem.Knife);
-            p!.PlayerPawn!.Value!.VelocityModifier = 1;
         });
+
+        CCSPlayerController selectedPlayerToTerrorist = playersCT[sortedPlayerIndex];
         Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}New Random Terrorist Selected: {selectedPlayerToTerrorist.PlayerName}");
         selectedPlayerToTerrorist!.ChangeTeam(CsTeam.Terrorist);
         this.selectedPlayerToTerrorist = selectedPlayerToTerrorist;
+       
         return HookResult.Continue;
     }
 
     private static void getPlayers(out List<CCSPlayerController> players, out List<CCSPlayerController> playersCT, out List<CCSPlayerController> playersTR)
     {
-        players = Utilities.GetPlayers().Where(s => s.IsValid).Where(s => !s.IsHLTV).Where(s => s.PlayerPawn.Value != null).Where(s => s.TeamNum != SPEC).ToList();
+        players = Utilities.GetPlayers().Where(s => s.TeamNum != SPEC).ToList();
         playersCT = players.Where(s => s.TeamNum == CT).ToList();
         playersTR = players.Where(s => s.TeamNum == TR).ToList();
     }
