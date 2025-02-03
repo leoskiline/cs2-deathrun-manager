@@ -7,8 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="CounterStrikeSharp.API">
        <HintPath>C:/cs2-ds/game/csgo/addons/counterstrikesharp/api/CounterStrikeSharp.API.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+        <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

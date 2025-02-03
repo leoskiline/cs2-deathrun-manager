@@ -10,7 +10,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
 
-    public override string ModuleVersion => "0.0.9";
+    public override string ModuleVersion => "0.1.0";
     
     public override string ModuleAuthor => "Psycho";
 
@@ -135,13 +135,13 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         getPlayers(out players, out playersCT, out playersTR);
         if(playersCT.Count > 0 && player.PlayerPawn.Value.TeamNum == TR)
         {
-            player.PrintToChat($"{TextColor.Green}{prefix} {TextColor.Default} You cannot change team.");
+            player.PrintToChat($"{prefix} {Localizer["team.change"]}");
             return HookResult.Handled;
         }
 
         if(arg == TR || arg == SPEC)
         {
-            player.PrintToChat($"{TextColor.Green}{prefix} {TextColor.Default} Team limit reached.");
+            player.PrintToChat($"{prefix} {Localizer["team.limit"]}");
             return HookResult.Handled;
         }
 
@@ -162,7 +162,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
             return HookResult.Continue;
         }
 
-        player.PrintToChat($"{TextColor.Green}{prefix} {TextColor.Default} Blocked command: {info.GetCommandString}");
+        player.PrintToChat($"{prefix} {Localizer["blocked.command"]} {info.GetCommandString}");
 
         return HookResult.Stop;
     }
@@ -259,7 +259,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (b_Enabled && players.Count <= 1)
         {
-            Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}Minimum 2 players required to start DR.");
+            Server.PrintToChatAll($"{prefix} {Localizer["minimum.players"]}");
             return HookResult.Continue;
         }
 
@@ -279,7 +279,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         });
 
         CCSPlayerController selectedPlayerToTerrorist = playersCT[sortedPlayerIndex];
-        Server.PrintToChatAll($"{TextColor.Green}{prefix} {TextColor.Default}New Random Terrorist Selected: {selectedPlayerToTerrorist.PlayerName}");
+        Server.PrintToChatAll($"{prefix} {Localizer["random.terrorist"]} {selectedPlayerToTerrorist.PlayerName}");
         selectedPlayerToTerrorist!.ChangeTeam(CsTeam.Terrorist);
         this.selectedPlayerToTerrorist = selectedPlayerToTerrorist;
        
