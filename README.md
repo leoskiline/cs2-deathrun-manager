@@ -32,3 +32,4 @@ Video: https://youtu.be/W03D675dkGg
     V0.0.7 - Added TR velocity multiplier.<br>
     V0.0.8 - Hotfix to not change SPEC back to Counter-Terrorist.<br>
     V0.0.9 - Hotfix for new cs2 update 2025-01-22. Cssharp version v301 <br>
+    V0.1.0 - Add support to localization pt-BR & en-US. CS# V305 <br>
