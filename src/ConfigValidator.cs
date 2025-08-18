@@ -21,6 +21,15 @@
             if (config.DrEnableBunnyhop is not (0 or 1))
                 errors.Add("DrEnableBunnyhop deve ser 0 ou 1");
 
+            if (config.DrTerroristNoFallDamage is not (0 or 1))
+                errors.Add("DrTerroristNoFallDamage deve ser 0 ou 1");
+
+            if (config.DrEnableDetailedLogging is not (0 or 1))
+                errors.Add("DrEnableDetailedLogging deve ser 0 ou 1");
+
+            if (config.DrLogRetentionDays < 1 || config.DrLogRetentionDays > 365)
+                errors.Add("DrLogRetentionDays deve ser entre 1 e 365");
+
             if (config.DrVelocityMultiplierTR <= 0)
                 errors.Add("DrVelocityMultiplierTR deve ser maior que 0");
 

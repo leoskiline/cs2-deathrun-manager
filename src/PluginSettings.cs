@@ -8,6 +8,9 @@ namespace DeathrunManager
         public bool AllowCTGoSpec { get; set; } = true;
         public bool OnlyDeathrunMaps { get; set; } = true;
         public bool EnableBunnyhop { get; set; } = true;
+        public bool TerroristNoFallDamage { get; set; } = true;
+        public bool EnableDetailedLogging { get; set; } = false;
+        public int LogRetentionDays { get; set; } = 7;
         public float VelocityMultiplierTR { get; set; } = 1.75f;
 
         private string _prefix = "DR Manager";
@@ -22,6 +25,9 @@ namespace DeathrunManager
             AllowCTGoSpec = config.DrAllowCTGoSpec == 1;
             OnlyDeathrunMaps = config.DrOnlyDeathrunMaps == 1;
             EnableBunnyhop = config.DrEnableBunnyhop == 1;
+            TerroristNoFallDamage = config.DrTerroristNoFallDamage == 1;
+            EnableDetailedLogging = config.DrEnableDetailedLogging == 1;
+            LogRetentionDays = config.DrLogRetentionDays;
             VelocityMultiplierTR = config.DrVelocityMultiplierTR;
         }
     }
