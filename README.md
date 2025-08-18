@@ -41,7 +41,7 @@ The **Deathrun Manager Plugin** is a feature-rich plugin designed specifically f
 2. **Download & Install**:
    ```bash
    # Download the plugin files
-   git clone https://github.com/yourusername/cs2-deathrun-manager
+   git clone https://github.com/leoskiline/cs2-deathrun-manager
    
    # Copy to your plugins directory
    cp -r DeathrunManagerPlugin /path/to/counterstrikesharp/plugins/
@@ -164,7 +164,7 @@ O **Deathrun Manager Plugin** é um plugin completo projetado especificamente pa
 2. **Download & Instalação**:
    ```bash
    # Baixar os arquivos do plugin
-   git clone https://github.com/yourusername/cs2-deathrun-manager
+   git clone https://github.com/leoskiline/cs2-deathrun-manager
    
    # Copiar para o diretório de plugins
    cp -r DeathrunManagerPlugin /caminho/para/counterstrikesharp/plugins/
