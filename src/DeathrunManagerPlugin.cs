@@ -58,8 +58,8 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (ShouldPluginBeActive())
         {
-            var message = noFallDamage ? "não toma mais dano de queda" : "volta a tomar dano de queda";
-            _logger.LogInfo($"Configuração de dano de queda alterada: {(noFallDamage ? "desabilitado" : "habilitado")}");
+            var message = noFallDamage ? "nï¿½o toma mais dano de queda" : "volta a tomar dano de queda";
+            _logger.LogInfo($"Configuraï¿½ï¿½o de dano de queda alterada: {(noFallDamage ? "desabilitado" : "habilitado")}");
         }
     }
     #endregion
@@ -116,7 +116,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         ApplyMovementSettings();
         _convarLoaded = true;
 
-        Console.WriteLine("[DR Manager] Configurações do servidor aplicadas");
+        Console.WriteLine("[DR Manager] Configuraï¿½ï¿½es do servidor aplicadas");
     }
 
     private void ApplyServerSettings()
@@ -144,7 +144,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         Config = config;
 
         _logger.Initialize(_settings);
-        _logger.LogInfo("Configuração carregada e validada");
+        _logger.LogInfo("Configuraï¿½ï¿½o carregada e validada");
 
         ApplyMovementSettings();
         CheckMapCompatibility();
@@ -199,7 +199,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         if (string.IsNullOrWhiteSpace(command.ArgString))
         {
-            command.ReplyToCommand($"{ChatColors.Red}Prefixo não pode ser vazio{ChatColors.Default}");
+            command.ReplyToCommand($"{ChatColors.Red}Prefixo nï¿½o pode ser vazio{ChatColors.Default}");
             return;
         }
 
@@ -208,12 +208,12 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     }
 
     [ConsoleCommand("dr_velocity_multiplier_tr", "Alterar multiplicador de velocidade do terrorista")]
-    [CommandHelper(minArgs: 1, usage: "[número]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "[nï¿½mero]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnVelocityMultiplierCommand(CCSPlayerController? player, CommandInfo command)
     {
         if (!CommandParser.TryParsePositiveFloat(command.ArgString, out float velocity))
         {
-            command.ReplyToCommand($"{ChatColors.Red}Valor deve ser um número maior que 0{ChatColors.Default}");
+            command.ReplyToCommand($"{ChatColors.Red}Valor deve ser um nï¿½mero maior que 0{ChatColors.Default}");
             return;
         }
 
@@ -232,7 +232,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
 
         _settings.AllowCTGoSpec = allow;
-        var status = allow ? $"{ChatColors.Green}Sim" : $"{ChatColors.Red}Não";
+        var status = allow ? $"{ChatColors.Green}Sim" : $"{ChatColors.Red}Nï¿½o";
         command.ReplyToCommand($"CT pode ir para espectador: {status}{ChatColors.Default}");
     }
 
@@ -249,12 +249,12 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         _settings.OnlyDeathrunMaps = onlyDeathrun;
         CheckMapCompatibility();
 
-        var status = onlyDeathrun ? $"{ChatColors.Green}Sim" : $"{ChatColors.Red}Não";
+        var status = onlyDeathrun ? $"{ChatColors.Green}Sim" : $"{ChatColors.Red}Nï¿½o";
         command.ReplyToCommand($"Plugin ativo apenas em mapas de deathrun: {status}{ChatColors.Default}");
 
         if (onlyDeathrun && !_gameState.IsDeathrunMap)
         {
-            command.ReplyToCommand($"{ChatColors.Orange}Mapa atual não é de deathrun - plugin desativado{ChatColors.Default}");
+            command.ReplyToCommand($"{ChatColors.Orange}Mapa atual nï¿½o ï¿½ de deathrun - plugin desativado{ChatColors.Default}");
         }
     }
 
@@ -294,10 +294,14 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     [GameEventHandler]
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        if (ShouldPluginBeActive() && _gameState.SelectedTerrorist != null &&
-            PlayerValidator.IsValid(_gameState.SelectedTerrorist))
+        if (ShouldPluginBeActive())
         {
-            _gameState.SelectedTerrorist.PlayerPawn!.Value!.VelocityModifier = _settings.VelocityMultiplierTR;
+            if (_gameState.SelectedTerrorist != null && PlayerValidator.IsValid(_gameState.SelectedTerrorist))
+            {
+                _gameState.SelectedTerrorist.PlayerPawn!.Value!.VelocityModifier = _settings.VelocityMultiplierTR;
+            }
+
+            GiveKnivesToCTsWithoutKnife();
         }
         return HookResult.Continue;
     }
@@ -307,6 +311,40 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
     [GameEventHandler]
     public HookResult OnRoundAnnounceWarmup(EventRoundAnnounceWarmup @event, GameEventInfo info) => SelectRandomTerrorist();
+
+    [GameEventHandler]
+    public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
+    {
+        if (!ShouldPluginBeActive())
+            return HookResult.Continue;
+
+        var player = @event.Userid;
+        if (!PlayerValidator.IsValid(player))
+            return HookResult.Continue;
+
+        var teamName = player!.TeamNum == (int)CsTeam.CounterTerrorist ? "CT" : 
+                      player.TeamNum == (int)CsTeam.Terrorist ? "TR" : "Unknown";
+        
+        Console.WriteLine($"[DR Manager] {teamName} {player.PlayerName} spawnou - garantindo apenas faca...");
+
+        // Aguarda um tick para garantir que o spawn foi completado
+        Server.NextFrame(() => 
+        {
+            if (PlayerValidator.IsValid(player))
+            {
+                if (player.TeamNum == (int)CsTeam.CounterTerrorist)
+                {
+                    GiveKnifeToSingleCT(player);
+                }
+                else if (player.TeamNum == (int)CsTeam.Terrorist)
+                {
+                    GiveKnifeToSingleTR(player);
+                }
+            }
+        });
+
+        return HookResult.Continue;
+    }
 
     [GameEventHandler]
     public HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
@@ -346,7 +384,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (!ValidatePlayersForSelection(teamData))
         {
-            _logger.LogWarning("Seleção de terrorista falhou na validação de jogadores");
+            _logger.LogWarning("Seleï¿½ï¿½o de terrorista falhou na validaï¿½ï¿½o de jogadores");
             return HookResult.Continue;
         }
 
@@ -355,7 +393,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (selectedTerrorist == null)
         {
-            _logger.LogError("Falha ao selecionar terrorista aleatório");
+            _logger.LogError("Falha ao selecionar terrorista aleatï¿½rio");
             return HookResult.Continue;
         }
 
@@ -377,7 +415,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (teamData.CounterTerrorists.Count == 0)
         {
-            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Red}Não há jogadores CT disponíveis{ChatColors.Default}");
+            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Red}Nï¿½o hï¿½ jogadores CT disponï¿½veis{ChatColors.Default}");
             return false;
         }
 
@@ -393,6 +431,17 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Green}{Localizer["random.terrorist"]} {ChatColors.Blue}{selectedTerrorist.PlayerName}{ChatColors.Default}");
         selectedTerrorist.ChangeTeam(CsTeam.Terrorist);
+        
+        // Garantir que o terrorista tenha apenas faca
+        Server.NextFrame(() => 
+        {
+            if (PlayerValidator.IsValid(selectedTerrorist) && selectedTerrorist.TeamNum == (int)CsTeam.Terrorist)
+            {
+                selectedTerrorist.RemoveWeapons();
+                selectedTerrorist.GiveNamedItem(CsItem.Knife);
+                Console.WriteLine($"[DR Manager] Terrorista {selectedTerrorist.PlayerName} equipado apenas com faca");
+            }
+        });
     }
 
     private void ResetAllPlayersToCounterTerrorist(List<CCSPlayerController> players)
@@ -421,7 +470,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var mapChecker = new MapChecker();
             _gameState.IsDeathrunMap = mapChecker.IsDeathrunMap(Server.MapName);
 
-            Console.WriteLine($"[DR Manager] Verificação de mapa: {Server.MapName} - É deathrun: {_gameState.IsDeathrunMap}");
+            Console.WriteLine($"[DR Manager] Verificaï¿½ï¿½o de mapa: {Server.MapName} - ï¿½ deathrun: {_gameState.IsDeathrunMap}");
         }
         catch (Exception ex)
         {
@@ -442,8 +491,8 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
         else
         {
-            Console.WriteLine("[DR Manager] Mapa não é de deathrun - plugin desativado");
-            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Orange}Plugin desativado - mapa não é de deathrun{ChatColors.Default}");
+            Console.WriteLine("[DR Manager] Mapa nï¿½o ï¿½ de deathrun - plugin desativado");
+            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Orange}Plugin desativado - mapa nï¿½o ï¿½ de deathrun{ChatColors.Default}");
         }
     }
 
@@ -468,8 +517,103 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Erro ao aplicar configurações de movimento: {ex.Message}", ex);
-            Console.WriteLine($"[DR Manager] Erro ao aplicar configurações de movimento: {ex.Message}");
+            _logger.LogError($"Erro ao aplicar configuraï¿½ï¿½es de movimento: {ex.Message}", ex);
+            Console.WriteLine($"[DR Manager] Erro ao aplicar configuraï¿½ï¿½es de movimento: {ex.Message}");
+        }
+    }
+
+    private void GiveKnivesToCTsWithoutKnife()
+    {
+        try
+        {
+            Console.WriteLine("[DR Manager] Removendo todas as armas dos CTs e dando apenas faca...");
+            var teamData = TeamUtilities.GetTeamPlayers();
+            
+            Console.WriteLine($"[DR Manager] Encontrados {teamData.CounterTerrorists.Count} jogadores CT");
+            
+            foreach (var ct in teamData.CounterTerrorists.Where(PlayerValidator.IsValid))
+            {
+                try
+                {
+                    Console.WriteLine($"[DR Manager] Processando armas do CT: {ct.PlayerName}");
+                    
+                    if (ct.PlayerPawn?.Value == null) 
+                    {
+                        Console.WriteLine($"[DR Manager] ERRO: PlayerPawn nulo para CT {ct.PlayerName}");
+                        continue;
+                    }
+
+                    // Remove todas as armas do jogador
+                    ct.RemoveWeapons();
+                    Console.WriteLine($"[DR Manager] Todas as armas removidas do CT: {ct.PlayerName}");
+                    
+                    // DÃ¡ apenas a faca
+                    ct.GiveNamedItem(CsItem.Knife);
+                    Console.WriteLine($"[DR Manager] Faca dada ao CT: {ct.PlayerName}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[DR Manager] ERRO ao verificar faca do CT {ct.PlayerName}: {ex.Message}");
+                    Console.WriteLine($"[DR Manager] Stack trace: {ex.StackTrace}");
+                    _logger.LogError($"Erro ao verificar faca do CT: {ex.Message}", ex);
+                }
+            }
+            
+            Console.WriteLine("[DR Manager] VerificaÃ§Ã£o de facas dos CTs concluÃ­da");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[DR Manager] ERRO GERAL na verificaÃ§Ã£o de facas: {ex.Message}");
+            Console.WriteLine($"[DR Manager] Stack trace: {ex.StackTrace}");
+            _logger.LogError($"Erro geral na verificaÃ§Ã£o de facas: {ex.Message}", ex);
+        }
+    }
+
+    private void GiveKnifeToSingleCT(CCSPlayerController player)
+    {
+        try
+        {
+            Console.WriteLine($"[DR Manager] Garantindo apenas faca para CT: {player.PlayerName}");
+            
+            if (player.PlayerPawn?.Value == null) 
+            {
+                Console.WriteLine($"[DR Manager] ERRO: PlayerPawn nulo para CT {player.PlayerName}");
+                return;
+            }
+
+            // Remove todas as armas e dÃ¡ apenas faca
+            player.RemoveWeapons();
+            player.GiveNamedItem(CsItem.Knife);
+            Console.WriteLine($"[DR Manager] CT {player.PlayerName} equipado apenas com faca");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[DR Manager] ERRO ao dar faca individual para CT {player.PlayerName}: {ex.Message}");
+            _logger.LogError($"Erro ao dar faca individual para CT: {ex.Message}", ex);
+        }
+    }
+
+    private void GiveKnifeToSingleTR(CCSPlayerController player)
+    {
+        try
+        {
+            Console.WriteLine($"[DR Manager] Garantindo apenas faca para TR: {player.PlayerName}");
+            
+            if (player.PlayerPawn?.Value == null) 
+            {
+                Console.WriteLine($"[DR Manager] ERRO: PlayerPawn nulo para TR {player.PlayerName}");
+                return;
+            }
+
+            // Remove todas as armas e dÃ¡ apenas faca
+            player.RemoveWeapons();
+            player.GiveNamedItem(CsItem.Knife);
+            Console.WriteLine($"[DR Manager] TR {player.PlayerName} equipado apenas com faca");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[DR Manager] ERRO ao dar faca individual para TR {player.PlayerName}: {ex.Message}");
+            _logger.LogError($"Erro ao dar faca individual para TR: {ex.Message}", ex);
         }
     }
     #endregion
