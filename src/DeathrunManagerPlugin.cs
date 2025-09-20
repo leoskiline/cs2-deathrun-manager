@@ -11,7 +11,7 @@ namespace DeathrunManagerPlugin;
 public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Deathrun Manager Plugin";
-    public override string ModuleVersion => "0.5.0";
+    public override string ModuleVersion => "0.5.1";
     public override string ModuleAuthor => "Psycho";
     public override string ModuleDescription => "Deathrun Manager plugin for CounterStrike Sharp";
 
