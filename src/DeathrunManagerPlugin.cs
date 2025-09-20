@@ -58,8 +58,8 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (ShouldPluginBeActive())
         {
-            var message = noFallDamage ? "n�o toma mais dano de queda" : "volta a tomar dano de queda";
-            _logger.LogInfo($"Configura��o de dano de queda alterada: {(noFallDamage ? "desabilitado" : "habilitado")}");
+            var message = noFallDamage ? "nao toma mais dano de queda" : "volta a tomar dano de queda";
+            _logger.LogInfo($"Configuracao de dano de queda alterada: {(noFallDamage ? "desabilitado" : "habilitado")}");
         }
     }
     #endregion
@@ -116,7 +116,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         ApplyMovementSettings();
         _convarLoaded = true;
 
-        Console.WriteLine("[DR Manager] Configura��es do servidor aplicadas");
+        Console.WriteLine("[DR Manager] Configuracoes do servidor aplicadas");
     }
 
     private void ApplyServerSettings()
@@ -144,7 +144,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         Config = config;
 
         _logger.Initialize(_settings);
-        _logger.LogInfo("Configura��o carregada e validada");
+        _logger.LogInfo("Configuracao carregada e validada");
 
         ApplyMovementSettings();
         CheckMapCompatibility();
@@ -208,12 +208,12 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     }
 
     [ConsoleCommand("dr_velocity_multiplier_tr", "Alterar multiplicador de velocidade do terrorista")]
-    [CommandHelper(minArgs: 1, usage: "[n�mero]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "[numero]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnVelocityMultiplierCommand(CCSPlayerController? player, CommandInfo command)
     {
         if (!CommandParser.TryParsePositiveFloat(command.ArgString, out float velocity))
         {
-            command.ReplyToCommand($"{ChatColors.Red}Valor deve ser um n�mero maior que 0{ChatColors.Default}");
+            command.ReplyToCommand($"{ChatColors.Red}Valor deve ser um numero maior que 0{ChatColors.Default}");
             return;
         }
 
@@ -249,12 +249,12 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         _settings.OnlyDeathrunMaps = onlyDeathrun;
         CheckMapCompatibility();
 
-        var status = onlyDeathrun ? $"{ChatColors.Green}Sim" : $"{ChatColors.Red}N�o";
+        var status = onlyDeathrun ? $"{ChatColors.Green}Sim" : $"{ChatColors.Red}Nao";
         command.ReplyToCommand($"Plugin ativo apenas em mapas de deathrun: {status}{ChatColors.Default}");
 
         if (onlyDeathrun && !_gameState.IsDeathrunMap)
         {
-            command.ReplyToCommand($"{ChatColors.Orange}Mapa atual n�o � de deathrun - plugin desativado{ChatColors.Default}");
+            command.ReplyToCommand($"{ChatColors.Orange}Mapa atual nao e de deathrun - plugin desativado{ChatColors.Default}");
         }
     }
 
@@ -384,7 +384,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (!ValidatePlayersForSelection(teamData))
         {
-            _logger.LogWarning("Sele��o de terrorista falhou na valida��o de jogadores");
+            _logger.LogWarning("Selecao de terrorista falhou na validacao de jogadores");
             return HookResult.Continue;
         }
 
@@ -393,7 +393,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (selectedTerrorist == null)
         {
-            _logger.LogError("Falha ao selecionar terrorista aleat�rio");
+            _logger.LogError("Falha ao selecionar terrorista aleatorio");
             return HookResult.Continue;
         }
 
@@ -415,7 +415,7 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
         if (teamData.CounterTerrorists.Count == 0)
         {
-            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Red}N�o h� jogadores CT dispon�veis{ChatColors.Default}");
+            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Red}Nao ha jogadores CT disponiveis{ChatColors.Default}");
             return false;
         }
 
@@ -467,10 +467,18 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         try
         {
-            var mapChecker = new MapChecker();
-            _gameState.IsDeathrunMap = mapChecker.IsDeathrunMap(Server.MapName);
+            var currentMap = Server.MapName;
+            if (string.IsNullOrEmpty(currentMap))
+            {
+                Console.WriteLine("[DR Manager] Nome do mapa não disponível");
+                _gameState.IsDeathrunMap = false;
+                return;
+            }
 
-            Console.WriteLine($"[DR Manager] Verifica��o de mapa: {Server.MapName} - � deathrun: {_gameState.IsDeathrunMap}");
+            var mapChecker = new MapChecker();
+            _gameState.IsDeathrunMap = mapChecker.IsDeathrunMap(currentMap);
+
+            Console.WriteLine($"[DR Manager] Verificação de mapa: {currentMap} - é deathrun: {_gameState.IsDeathrunMap}");
         }
         catch (Exception ex)
         {
@@ -491,8 +499,8 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
         else
         {
-            Console.WriteLine("[DR Manager] Mapa n�o � de deathrun - plugin desativado");
-            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Orange}Plugin desativado - mapa n�o � de deathrun{ChatColors.Default}");
+            Console.WriteLine("[DR Manager] Mapa nao e de deathrun - plugin desativado");
+            Server.PrintToChatAll($"{_settings.FormattedPrefix} {ChatColors.Orange}Plugin desativado - mapa nao e de deathrun{ChatColors.Default}");
         }
     }
 
@@ -517,8 +525,8 @@ public class DeathrunManagerPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Erro ao aplicar configura��es de movimento: {ex.Message}", ex);
-            Console.WriteLine($"[DR Manager] Erro ao aplicar configura��es de movimento: {ex.Message}");
+            _logger.LogError($"Erro ao aplicar configuracoes de movimento: {ex.Message}", ex);
+            Console.WriteLine($"[DR Manager] Erro ao aplicar configuracoes de movimento: {ex.Message}");
         }
     }
 

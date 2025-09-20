@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            // Configuração para depurar o código
+            "name": ".NET Core Launch (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            // Tarefa que será executada ANTES de iniciar. Aponta para o "label" no tasks.json
+            "preLaunchTask": "build",
+            // Caminho para a DLL do seu projeto.
+            // Altere 'YourProjectName' para o nome do seu projeto/DLL.
+             "program": "${workspaceFolder}/src/bin/Release/net8.0/DeathrunManager.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            // Abre um terminal externo. Mude para "internalConsole" se preferir o console do VS Code.
+            "console": "externalTerminal",
+            "logging": {
+                "engineLogging": false
+            }
+        },
+        {
+            // Configuração para executar a versão de Release (sem depuração profunda)
+            "name": ".NET Core Launch (Release)",
+            "type": "coreclr",
+            "request": "launch",
+            // Usa a tarefa específica para compilar em modo Release
+            "preLaunchTask": "build-release",
+            // O caminho agora aponta para a pasta de Release
+            "program": "${workspaceFolder}/src/bin/Release/net8.0/DeathrunManager.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "console": "externalTerminal",
+            // A depuração é possível, mas sem otimizações e símbolos pode ser limitada.
+            "justMyCode": true 
+        }
+    ]
+}

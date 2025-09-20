@@ -1,25 +1,33 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build Release",
-            "type": "shell",
-            "command": "dotnet build \"${workspaceFolder}/src/DeathrunManager.csproj\" --configuration Release",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "Build Debug",
-            "type": "shell",
-            "command": "dotnet build \"${workspaceFolder}/src/DeathrunManager.csproj\" --configuration Debug",
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "problemMatcher": "$msCompile"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/DeathrunManager.csproj",
+        "--configuration",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build-release",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/DeathrunManager.csproj",
+        "--configuration",
+        "Release"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
 }
